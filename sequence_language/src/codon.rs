@@ -1,10 +1,24 @@
-use super::amino_acid::*;
 use super::rna::nucleobase::{Nucleobase, A, C, G, U};
-struct Codon([Nucleobase; 3]);
+use crate::protein::amino_acid::*;
+pub struct Codon([Nucleobase; 3]);
 
 pub enum CodesFor {
     AminoAcid(AminoAcid),
     Stop,
+}
+
+impl TryFrom<&[Nucleobase]> for Codon {
+    type Error = &'static str;
+
+    fn try_from(value: &[Nucleobase]) -> Result<Self, Self::Error> {
+        if value.len() == 3 {
+            Ok(Codon(
+                value.try_into().expect("length failed despite check wtf"),
+            ))
+        } else {
+            Err("codons can only be constructed from nucleobase triplets, got: {}")
+        }
+    }
 }
 
 impl From<Codon> for CodesFor {
