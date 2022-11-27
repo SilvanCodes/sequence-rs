@@ -1,4 +1,5 @@
 pub mod nucleobase {
+    use thiserror::Error;
     pub use Nucleobase::{Adenine, Adenine as A};
     pub use Nucleobase::{Cytosine, Cytosine as C};
     pub use Nucleobase::{Guanine, Guanine as G};
@@ -27,8 +28,14 @@ pub mod nucleobase {
         }
     }
 
+    #[derive(Error, Debug)]
+    pub enum DnaNucleobaseError {
+        #[error("Unexpected character: {0}. Allowed are A, C, T, G.")]
+        UnexpectedCharacter(char),
+    }
+
     impl TryFrom<char> for Nucleobase {
-        type Error = &'static str;
+        type Error = DnaNucleobaseError;
 
         fn try_from(value: char) -> Result<Self, Self::Error> {
             match value {
@@ -36,7 +43,7 @@ pub mod nucleobase {
                 'C' => Ok(Cytosine),
                 'T' => Ok(Thymine),
                 'G' => Ok(Guanine),
-                _unknown => Err("got unexpected char {}, allowed are: A, C, T, G"),
+                _ => Err(DnaNucleobaseError::UnexpectedCharacter(value)),
             }
         }
     }

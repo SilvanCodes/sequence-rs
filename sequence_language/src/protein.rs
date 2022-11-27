@@ -1,4 +1,5 @@
 pub mod amino_acid {
+    use thiserror::Error;
     pub use AminoAcid::{Alanine, Alanine as Ala, Alanine as A};
     pub use AminoAcid::{Arginine, Arginine as Arg, Arginine as R};
     pub use AminoAcid::{Asparagine, Asparagine as Asn, Asparagine as N};
@@ -74,8 +75,14 @@ pub mod amino_acid {
         }
     }
 
+    #[derive(Error, Debug)]
+    pub enum ProteinAminoAcidError {
+        #[error("Unexpected character: {0}. Allowed are A, R, N, D, C, E, Q, G, H, I, L, K, M, F, P, S, T, W, Y, V.")]
+        UnexpectedCharacter(char),
+    }
+
     impl TryFrom<char> for AminoAcid {
-        type Error = &'static str;
+        type Error = ProteinAminoAcidError;
 
         fn try_from(value: char) -> Result<Self, Self::Error> {
             match value {
@@ -99,8 +106,7 @@ pub mod amino_acid {
                 'W' => Ok(Tryptophan),
                 'Y' => Ok(Tyrosine),
                 'V' => Ok(Valine),
-
-                _unknown => Err("got unexpected char {}, allowed are: A, R, N, D, C, E, Q, G, H, I, L, K, M, F, P, S, T, W, Y, V"),
+                _ => Err(ProteinAminoAcidError::UnexpectedCharacter(value)),
             }
         }
     }

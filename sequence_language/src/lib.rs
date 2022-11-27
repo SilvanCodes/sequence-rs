@@ -8,11 +8,13 @@ mod rna;
 
 mod protein;
 
+mod sequence;
+
+pub use sequence::Sequence;
+
 type DNA = crate::dna::nucleobase::Nucleobase;
 type RNA = crate::rna::nucleobase::Nucleobase;
 type Protein = crate::protein::amino_acid::AminoAcid;
-
-mod sequence;
 
 impl From<DNA> for RNA {
     fn from(nucleobase: DNA) -> Self {
@@ -40,25 +42,25 @@ impl TryFrom<Codon> for AminoAcid {
 
 #[cfg(test)]
 mod tests {
-    use super::sequence;
+    use crate::{Protein, Sequence, DNA, RNA};
 
     #[test]
-    fn it_works() {
+    fn it_works() -> Result<(), anyhow::Error> {
         let sequence = "ACT";
 
-        let dna_sequence: sequence::Sequence<crate::dna::nucleobase::Nucleobase> =
-            sequence.try_into().expect("conversion went wrong");
+        let dna_sequence: Sequence<DNA> = sequence.try_into()?;
 
         println!("{}", dna_sequence);
 
-        let rna_sequence: sequence::Sequence<crate::rna::nucleobase::Nucleobase> =
-            dna_sequence.into();
+        let rna_sequence: Sequence<RNA> = dna_sequence.into();
 
         println!("{}", rna_sequence);
 
-        let protein_sequence: sequence::Sequence<crate::protein::amino_acid::AminoAcid> =
+        let protein_sequence: Sequence<Protein> =
             rna_sequence.try_into().expect("cant get protein");
 
         println!("{}", protein_sequence);
+
+        Ok(())
     }
 }

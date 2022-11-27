@@ -1,3 +1,5 @@
+use thiserror::Error;
+
 use crate::{codon::Codon, protein::amino_acid::AminoAcid, Protein, DNA, RNA};
 
 #[derive(Debug)]
@@ -23,16 +25,22 @@ impl<T> std::ops::Deref for Sequence<T> {
     }
 }
 
-impl TryFrom<&str> for Sequence<DNA> {
-    type Error = &'static str;
+#[derive(Error, Debug)]
+pub enum SequenceError<T> {
+    #[error("Unexpected character in sequence at position: {position}")]
+    UnexpectedCharacter { source: T, position: usize },
+}
+
+impl<T: TryFrom<char>> TryFrom<&str> for Sequence<T> {
+    type Error = SequenceError<<T as TryFrom<char>>::Error>;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         value
             .chars()
             .enumerate()
-            .map(|(pos, chr)| match DNA::try_from(chr) {
-                Ok(nucleobase) => Ok(nucleobase),
-                Err(_) => return Err("unexpected char at position pos"),
+            .map(|(position, character)| match T::try_from(character) {
+                Ok(sequence_item) => Ok(sequence_item),
+                Err(source) => return Err(SequenceError::UnexpectedCharacter { position, source }),
             })
             .collect()
     }
@@ -48,21 +56,6 @@ impl std::fmt::Display for Sequence<DNA> {
     }
 }
 
-impl TryFrom<&str> for Sequence<RNA> {
-    type Error = &'static str;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        value
-            .chars()
-            .enumerate()
-            .map(|(pos, chr)| match RNA::try_from(chr) {
-                Ok(nucleobase) => Ok(nucleobase),
-                Err(_) => return Err("unexpected char at position pos"),
-            })
-            .collect()
-    }
-}
-
 impl std::fmt::Display for Sequence<RNA> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "RNA sequence: ")?;
@@ -70,21 +63,6 @@ impl std::fmt::Display for Sequence<RNA> {
             write!(f, "{}", nucleobase)?;
         }
         Ok(())
-    }
-}
-
-impl TryFrom<&str> for Sequence<Protein> {
-    type Error = &'static str;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        value
-            .chars()
-            .enumerate()
-            .map(|(pos, chr)| match Protein::try_from(chr) {
-                Ok(nucleobase) => Ok(nucleobase),
-                Err(_) => return Err("unexpected char at position pos"),
-            })
-            .collect()
     }
 }
 
