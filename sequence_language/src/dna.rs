@@ -1,13 +1,8 @@
 pub mod nucleobase {
-    pub use Nucleobase::Adenine;
-    pub use Nucleobase::Cytosine;
-    pub use Nucleobase::Guanine;
-    pub use Nucleobase::Thymine;
-
-    pub use Adenine as A;
-    pub use Cytosine as C;
-    pub use Guanine as G;
-    pub use Thymine as T;
+    pub use Nucleobase::{Adenine, Adenine as A};
+    pub use Nucleobase::{Cytosine, Cytosine as C};
+    pub use Nucleobase::{Guanine, Guanine as G};
+    pub use Nucleobase::{Thymine, Thymine as T};
 
     #[derive(Debug, Clone, Copy)]
     pub enum Nucleobase {

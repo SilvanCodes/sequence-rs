@@ -1,8 +1,4 @@
-use crate::{
-    codon::{self, Codon},
-    protein::amino_acid::AminoAcid,
-    Protein, DNA, RNA,
-};
+use crate::{codon::Codon, protein::amino_acid::AminoAcid, Protein, DNA, RNA};
 
 #[derive(Debug)]
 pub struct Sequence<T>(Vec<T>);
