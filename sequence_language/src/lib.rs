@@ -3,7 +3,7 @@ use protein::amino_acid::AminoAcid;
 
 mod codon;
 
-mod dna;
+pub mod dna;
 mod rna;
 
 mod protein;
@@ -12,9 +12,9 @@ mod sequence;
 
 pub use sequence::Sequence;
 
-type DNA = crate::dna::nucleobase::Nucleobase;
-type RNA = crate::rna::nucleobase::Nucleobase;
-type Protein = crate::protein::amino_acid::AminoAcid;
+pub type DNA = crate::dna::nucleobase::Nucleobase;
+pub type RNA = crate::rna::nucleobase::Nucleobase;
+pub type Protein = crate::protein::amino_acid::AminoAcid;
 
 impl From<DNA> for RNA {
     fn from(nucleobase: DNA) -> Self {

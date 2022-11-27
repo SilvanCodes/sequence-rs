@@ -1,0 +1,13 @@
+[package]
+name = "sequence_alignment"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nalgebra = "0.31.4"
+sequence_language = { path = "../sequence_language"}
+
+[dev-dependencies]
+anyhow = "1.0.66"
