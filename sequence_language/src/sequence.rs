@@ -1,27 +1,41 @@
+use std::marker::PhantomData;
+
 use thiserror::Error;
 
 use crate::{codon::Codon, protein::amino_acid::AminoAcid, Protein, DNA, RNA};
 
 #[derive(Debug)]
-pub struct Sequence<T>(Vec<T>);
+pub struct Sequence<T, S = Vec<T>> {
+    made_from: PhantomData<T>,
+    data: S,
+}
+
+impl<T> Sequence<T> {
+    pub fn new(data: Vec<T>) -> Self {
+        Self {
+            made_from: PhantomData,
+            data,
+        }
+    }
+}
 
 impl<T> From<Vec<T>> for Sequence<T> {
     fn from(value: Vec<T>) -> Self {
-        Self(value)
+        Self::new(value)
     }
 }
 
 impl<T> FromIterator<T> for Sequence<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        Self(iter.into_iter().collect::<Vec<_>>())
+        Self::new(iter.into_iter().collect::<Vec<_>>())
     }
 }
 
-impl<T> std::ops::Deref for Sequence<T> {
-    type Target = Vec<T>;
+impl<T, S> std::ops::Deref for Sequence<T, S> {
+    type Target = S;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.data
     }
 }
 
@@ -78,7 +92,7 @@ impl std::fmt::Display for Sequence<Protein> {
 
 impl From<Sequence<DNA>> for Sequence<RNA> {
     fn from(sequence: Sequence<DNA>) -> Self {
-        sequence.0.into_iter().map(|dna| dna.into()).collect()
+        sequence.data.into_iter().map(|dna| dna.into()).collect()
     }
 }
 
@@ -87,7 +101,7 @@ impl TryFrom<Sequence<RNA>> for Sequence<Protein> {
 
     fn try_from(value: Sequence<RNA>) -> Result<Self, Self::Error> {
         value
-            .0
+            .data
             .chunks(3)
             .map(|triplet| Codon::try_from(triplet))
             .map(|codon| AminoAcid::try_from(codon?))
