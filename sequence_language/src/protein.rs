@@ -21,6 +21,7 @@ pub mod amino_acid {
     pub use AminoAcid::{Tyrosine, Tyrosine as Tyr, Tyrosine as Y};
     pub use AminoAcid::{Valine, Valine as Val, Valine as V};
 
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum AminoAcid {
         Alanine,
         Arginine,

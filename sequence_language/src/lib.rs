@@ -11,10 +11,27 @@ mod protein;
 mod sequence;
 
 pub use sequence::Sequence;
+pub use sequence::Sequenceable;
 
 pub type DNA = crate::dna::nucleobase::Nucleobase;
 pub type RNA = crate::rna::nucleobase::Nucleobase;
 pub type Protein = crate::protein::amino_acid::AminoAcid;
+
+impl Sequenceable for DNA {
+    fn name() -> &'static str {
+        "DNA"
+    }
+}
+impl Sequenceable for RNA {
+    fn name() -> &'static str {
+        "RNA"
+    }
+}
+impl Sequenceable for Protein {
+    fn name() -> &'static str {
+        "Protein"
+    }
+}
 
 impl From<DNA> for RNA {
     fn from(nucleobase: DNA) -> Self {

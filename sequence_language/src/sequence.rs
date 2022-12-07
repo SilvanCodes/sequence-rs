@@ -4,13 +4,17 @@ use thiserror::Error;
 
 use crate::{codon::Codon, protein::amino_acid::AminoAcid, Protein, DNA, RNA};
 
+pub trait Sequenceable: std::fmt::Display {
+    fn name() -> &'static str;
+}
+
 #[derive(Debug)]
-pub struct Sequence<T, S = Vec<T>> {
+pub struct Sequence<T: Sequenceable, S = Vec<T>> {
     made_from: PhantomData<T>,
     data: S,
 }
 
-impl<T> Sequence<T> {
+impl<T: Sequenceable> Sequence<T> {
     pub fn new(data: Vec<T>) -> Self {
         Self {
             made_from: PhantomData,
@@ -19,19 +23,19 @@ impl<T> Sequence<T> {
     }
 }
 
-impl<T> From<Vec<T>> for Sequence<T> {
+impl<T: Sequenceable> From<Vec<T>> for Sequence<T> {
     fn from(value: Vec<T>) -> Self {
         Self::new(value)
     }
 }
 
-impl<T> FromIterator<T> for Sequence<T> {
+impl<T: Sequenceable> FromIterator<T> for Sequence<T> {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         Self::new(iter.into_iter().collect::<Vec<_>>())
     }
 }
 
-impl<T, S> std::ops::Deref for Sequence<T, S> {
+impl<T: Sequenceable, S> std::ops::Deref for Sequence<T, S> {
     type Target = S;
 
     fn deref(&self) -> &Self::Target {
@@ -45,7 +49,7 @@ pub enum SequenceError<T> {
     UnexpectedCharacter { source: T, position: usize },
 }
 
-impl<T: TryFrom<char>> TryFrom<&str> for Sequence<T> {
+impl<T: TryFrom<char> + Sequenceable> TryFrom<&str> for Sequence<T> {
     type Error = SequenceError<<T as TryFrom<char>>::Error>;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
@@ -60,31 +64,11 @@ impl<T: TryFrom<char>> TryFrom<&str> for Sequence<T> {
     }
 }
 
-impl std::fmt::Display for Sequence<DNA> {
+impl<S: Sequenceable> std::fmt::Display for Sequence<S> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "DNA sequence: ")?;
+        write!(f, "{} sequence: ", S::name())?;
         for nucleobase in self.iter() {
             write!(f, "{}", nucleobase)?;
-        }
-        Ok(())
-    }
-}
-
-impl std::fmt::Display for Sequence<RNA> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RNA sequence: ")?;
-        for nucleobase in self.iter() {
-            write!(f, "{}", nucleobase)?;
-        }
-        Ok(())
-    }
-}
-
-impl std::fmt::Display for Sequence<Protein> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Protein sequence: ")?;
-        for amino_acid in self.iter() {
-            write!(f, "{}", amino_acid)?;
         }
         Ok(())
     }

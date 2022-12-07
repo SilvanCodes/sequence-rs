@@ -5,7 +5,7 @@ pub mod nucleobase {
     pub use Nucleobase::{Guanine, Guanine as G};
     pub use Nucleobase::{Uracil, Uracil as U};
 
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum Nucleobase {
         Adenine,
         Cytosine,
